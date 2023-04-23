@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { toast } from 'react-toastify';
 import './Searchbar.styles.css';
 
 class Searchbar extends Component {
@@ -8,13 +9,19 @@ class Searchbar extends Component {
 
   onSubmit = e => {
     e.preventDefault();
+    if (this.state.value.trim() === '') {
+      return toast.error('Ведіть назву зображення', {
+        position: 'top-center',
+        theme: 'colored',
+      });
+    }
     this.setState({ value: '' });
+    this.props.onSubmit(this.state.value);
   };
 
   onInput = e => {
-    console.log(e.target.value);
     const { name, value } = e.target;
-    this.setState({ [name]: value });
+    this.setState({ [name]: value.toLowerCase() });
   };
 
   render() {
