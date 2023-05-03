@@ -5,6 +5,7 @@ import './Searchbar.styles.css';
 class Searchbar extends Component {
   state = {
     value: '',
+    
   };
 
   onSubmit = e => {

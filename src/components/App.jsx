@@ -9,6 +9,7 @@ export default class App extends Component {
   state = {
     searchImg: '',
     modalImg: '',
+    per_page: 20,
   };
 
   hendlSubmit = searchImg => {
@@ -23,7 +24,10 @@ export default class App extends Component {
     return (
       <div className=".App">
         <Searchbar onSubmit={this.hendlSubmit} />
-        <ImageGallery searchImg={this.state.searchImg} />
+        <ImageGallery
+          searchImg={this.state.searchImg}
+          per_page={this.state.per_page}
+        />
         <ToastContainer autoClose={900} />
       </div>
     );

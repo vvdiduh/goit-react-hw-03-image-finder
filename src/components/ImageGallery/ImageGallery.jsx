@@ -4,6 +4,7 @@ import ImageGalleryItems from './ImageGalleryItem/ImageGalleryItem';
 // import ImageGalleryItems from './ImageGalleryItem/ImageGalleryItem';
 import './ImageGallery.styled.css';
 import Modal from './Modal/Modal';
+import Button from 'components/Button/Button';
 
 class ImageGallery extends Component {
   state = {
@@ -17,13 +18,17 @@ class ImageGallery extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
+    console.log(this.props);
     const prevSearchImg = prevProps.searchImg;
     const newSearchImg = this.props.searchImg;
+    const per_page = this.props.per_page;
 
     if (prevSearchImg !== newSearchImg) {
       this.setState({ status: 'pending', arrayImg: null });
 
-      fetch(`https://pixabay.com/api/?key=${this.state.key}&q=${newSearchImg}`)
+      fetch(
+        `https://pixabay.com/api/?key=${this.state.key}&q=${newSearchImg}&per_page=${per_page}`
+      )
         .then(resp => resp.json())
         .then(arrayImg =>
           this.setState({
@@ -43,6 +48,23 @@ class ImageGallery extends Component {
 
   closeModal = e => {
     this.setState({ imgInModal: null });
+  };
+
+  loadMoreImages = () => {
+    const { per_page, arrayImg } = this.state;
+    const newPerPage = per_page + 20;
+
+    fetch(
+      `https://pixabay.com/api/?key=${this.state.key}&q=${this.props.searchImg}&per_page=${newPerPage}`
+    )
+      .then(resp => resp.json())
+      .then(newArrayImg =>
+        this.setState({
+          arrayImg: [...arrayImg, ...newArrayImg.hits],
+          per_page: newPerPage,
+        })
+      )
+      .catch(error => this.setState({ error }));
   };
 
   render() {
@@ -72,18 +94,25 @@ class ImageGallery extends Component {
 
     if (status === 'resolved') {
       return (
-        <ul className="gallery">
-          {
-            <div className="ImageGallery">
-              <ImageGalleryItems arrayImg={arrayImg} onClick={this.openModal} />
-            </div>
-          }
-          {imgInModal && (
-            <>
-              <Modal img={imgInModal} onClick={this.closeModal} />
-            </>
-          )}
-        </ul>
+        <>
+          <ul className="gallery">
+            {
+              <div className="ImageGallery">
+                <ImageGalleryItems
+                  arrayImg={arrayImg}
+                  onClick={this.openModal}
+                />
+              </div>
+            }
+
+            {imgInModal && (
+              <>
+                <Modal img={imgInModal} onClick={this.closeModal} />
+              </>
+            )}
+          </ul>
+          {arrayImg && <Button loadMoreImages={this.loadMoreImages} />}
+        </>
       );
     }
   }
