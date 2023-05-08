@@ -5,13 +5,13 @@ import ImageGalleryItems from './ImageGalleryItem/ImageGalleryItem';
 import './ImageGallery.styled.css';
 import Modal from './Modal/Modal';
 import Button from 'components/Button/Button';
+import { getImg, addImg } from 'services/api';
 
 class ImageGallery extends Component {
   state = {
-    key: '32083000-0930ed6e251f9a7620e985678',
     arrayImg: null,
     totalImg: null,
-    // loading: false,
+    per_page: 20,
     error: null,
     imgInModal: null,
     status: 'idle',
@@ -21,14 +21,11 @@ class ImageGallery extends Component {
     console.log(this.props);
     const prevSearchImg = prevProps.searchImg;
     const newSearchImg = this.props.searchImg;
-    const per_page = this.props.per_page;
 
     if (prevSearchImg !== newSearchImg) {
       this.setState({ status: 'pending', arrayImg: null });
 
-      fetch(
-        `https://pixabay.com/api/?key=${this.state.key}&q=${newSearchImg}&per_page=${per_page}`
-      )
+      getImg(newSearchImg)
         .then(resp => resp.json())
         .then(arrayImg =>
           this.setState({
@@ -38,7 +35,6 @@ class ImageGallery extends Component {
           })
         )
         .catch(error => this.setState({ error }));
-      // .finally(() => this.setState({ loading: false }));
     }
   }
 
@@ -51,16 +47,15 @@ class ImageGallery extends Component {
   };
 
   loadMoreImages = () => {
-    const { per_page, arrayImg } = this.state;
+    const { per_page } = this.state;
+    const newSearchImg = this.props.searchImg;
     const newPerPage = per_page + 20;
 
-    fetch(
-      `https://pixabay.com/api/?key=${this.state.key}&q=${this.props.searchImg}&per_page=${newPerPage}`
-    )
+    addImg(newSearchImg, newPerPage)
       .then(resp => resp.json())
       .then(newArrayImg =>
         this.setState({
-          arrayImg: [...arrayImg, ...newArrayImg.hits],
+          arrayImg: [...newArrayImg.hits],
           per_page: newPerPage,
         })
       )
